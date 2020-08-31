@@ -22,6 +22,9 @@ class NeuralNetwork():
         b = self.parameters['W' + str(l)]
 
         Z = np.dot(W, A_prev) + b 
-        A = g(l, Z)
+        A = self.g(l, Z)
 
         return A, Z
+
+    def g(self, l, Z):
+        return 0
