@@ -20,11 +20,24 @@ class NeuralNetwork():
     def forward_propagation(self, l, A_prev):
         W = self.parameters['W' + str(l)]
         b = self.parameters['W' + str(l)]
-
         Z = np.dot(W, A_prev) + b 
         A = self.g(l, Z)
 
-        return A, Z
+        cache = (W, A_prev, Z)
+        return A, cache
+
+    def backward_propagation(self, l, dA, cache):
+        W, A_prev, Z = cache
+
+        dZ = dA * self.dg(l, Z)
+        dW = (1 / self.m) * np.dot(dZ, A_prev.T)
+        db = (1 / self.m) * np.sum(dZ, axis = 1, keepdims = True)
+        dA_prev = np.dot(W.T, dZ)
+
+        return dA_prev, dW, db
 
     def g(self, l, Z):
         return 0
+
+    def dg(self, l, Z):
+        return 1
