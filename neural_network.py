@@ -11,9 +11,9 @@ class NeuralNetwork():
         
         self.layers_dims = layers_dims
         self.parameters = {}
-        L = len(self.layers_dims)
+        self.L = len(self.layers_dims)
 
-        for l in range(1, L):
+        for l in range(1, self.L):
             self.parameters['W' + str(l)] = np.random.randn(self.layers_dims[l], self.layers_dims[l-1]) * np.sqrt(2 / self.layers_dims[l])
             self.parameters['b' + str(l)] = np.zeros((self.layers_dims[l], 1))
 
@@ -36,8 +36,25 @@ class NeuralNetwork():
 
         return dA_prev, dW, db
 
-    def g(self, l, Z):
-        return 0
+    def g(self, l, a):
+        if l == self.L: # Sigmoid
+            r = 1 / (1 + np.exp(-a))
+        else: # ReLU
+            if a >= 0:
+                r = a
+            else:
+                r = 0
 
-    def dg(self, l, Z):
-        return 1
+        return r
+
+    def dg(self, l, a, *args):
+        if l == self.L: # Sigmoid
+            y = args
+            r = - (y / a) + (1 - y) / (1 - a)
+        else: # Relu
+            if a >= 0:
+                r = 1
+            else:
+                r = 0
+        
+        return r
