@@ -20,7 +20,8 @@ class NeuralNetwork():
     def forward_propagation(self, X):
         caches = []
         A = X 
-        # ReLU
+
+        # Hidden layers (ReLU)
         for l in range(1, self.L):
             A_prev = A
             W = self.parameters['W' + str(l)]
@@ -29,43 +30,55 @@ class NeuralNetwork():
             A = self.g(Z, "relu")
             caches = caches.append((A_prev, W, b, Z))
         
-        # Sigmoid
+        # Output layer (Sigmoid)
         A_prev = A
-        W = self.parameters['W' + str(self.L)]
-        b = self.parameters['b' + str(self.L)]
-        ZL = np.dot(W, A_prev) + b
+        WL = self.parameters['W' + str(self.L)]
+        bL = self.parameters['b' + str(self.L)]
+        ZL = np.dot(W, A_prev) + bL
         AL = self.g(ZL, "sigmoid")
-        caches = caches.append((A, W, b, ZL))
+        caches = caches.append((A_prev, WL, bL, ZL))
 
         return AL, caches
 
-    def backward_propagation_unit(self, l, dA, cache):
-        W, A_prev, Z = cache
+    def backward_propagation(self, AL, Y, caches):
+        grads = {}
+        dAL = AL - Y
 
-        dZ = dA * self.dg(l, Z)
-        dW = (1 / self.m) * np.dot(dZ, A_prev.T)
-        db = (1 / self.m) * np.sum(dZ, axis = 1, keepdims = True)
-        dA_prev = np.dot(W.T, dZ)
+        # Output Layer
+        A_prev, WL, _, ZL = caches[self.L - 1] 
+        dZL = dAL * self.dg(ZL, "sigmoid")
+        grads["dW" + str(self.L)]  = (1 / self.m) * np.dot(dZL, A_prev.T)
+        grads["db" + str(self.L)] = (1 / self.m) * np.sum(dZL, axis=1, keepdims=True)
+        grads["dA" + str(self.L - 1)] = np.dot(WL.T, dZL)
+    
+        # Hidden Layers
+        for l in reversed(range(self.L - 1)):
+            A_prev, W, _, Z = caches[l]
+            dZ = grads["dA" + str(l)] * self.dg(Z, "relu")
+            grads["dW" + str(l)]  = (1 / self.m) * np.dot(dZ, A_prev.T)
+            grads["db" + str(l)]  = (1 / self.m) * np.sum(dZ, axis=1, keepdims=True)
+            grads["dA" + str(l - 1)] = np.dot(W.T, dZ)
 
-        return dA_prev, dW, db
+        return grads
 
-    def g(self, l, a):
-        if l == self.L: # Sigmoid
-            r = 1 / (1 + np.exp(-a))
-        else: # ReLU
-            if a >= 0:
-                r = a
+    def g(self, z, activation):
+        if activation == "sigmoid":
+            r = 1 / (1 + np.exp(-z))
+        elif activation == "relu":
+            if z >= 0:
+                r = z
             else:
                 r = 0
-
+        else:
+            r = 0
         return r
 
-    def dg(self, l, a, *args):
-        if l == self.L: # Sigmoid
-            y = args
-            r = - (y / a) + (1 - y) / (1 - a)
-        else: # Relu
-            if a >= 0:
+    def dg(self, z, activation):
+        if activation == "sigmoid":
+            sig = self.g(z, "sigmoid")
+            r = sig * (1 - sig)
+        elif activation == "relu":
+            if z >= 0:
                 r = 1
             else:
                 r = 0
