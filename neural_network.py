@@ -17,16 +17,29 @@ class NeuralNetwork():
             self.parameters['W' + str(l)] = np.random.randn(self.layers_dims[l], self.layers_dims[l-1]) * np.sqrt(2 / self.layers_dims[l])
             self.parameters['b' + str(l)] = np.zeros((self.layers_dims[l], 1))
 
-    def forward_propagation(self, l, A_prev):
-        W = self.parameters['W' + str(l)]
-        b = self.parameters['W' + str(l)]
-        Z = np.dot(W, A_prev) + b 
-        A = self.g(l, Z)
+    def forward_propagation(self, X):
+        caches = []
+        A = X 
+        # ReLU
+        for l in range(1, self.L):
+            A_prev = A
+            W = self.parameters['W' + str(l)]
+            b = self.parameters['W' + str(l)]
+            Z = np.dot(W, A_prev) + b
+            A = self.g(Z, "relu")
+            caches = caches.append((A_prev, W, b, Z))
+        
+        # Sigmoid
+        A_prev = A
+        W = self.parameters['W' + str(self.L)]
+        b = self.parameters['b' + str(self.L)]
+        ZL = np.dot(W, A_prev) + b
+        AL = self.g(ZL, "sigmoid")
+        caches = caches.append((A, W, b, ZL))
 
-        cache = (W, A_prev, Z)
-        return A, cache
+        return AL, caches
 
-    def backward_propagation(self, l, dA, cache):
+    def backward_propagation_unit(self, l, dA, cache):
         W, A_prev, Z = cache
 
         dZ = dA * self.dg(l, Z)
