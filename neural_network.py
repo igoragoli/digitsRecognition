@@ -120,8 +120,32 @@ class NeuralNetwork():
 
         return grads
 
-    # TODO: implement cost(.) function
+    def cost(self, A, Y):
+        """
+        Computes the cost function.
 
+        The cost function used in this neural network model is the
+        mean squared error (MSE):
+        J(A, Y) = \frac{1}{2m} \sum_{i = 1}^{i = m} ||A^{(i)} - Y^{(i)}||^2
+        The MSE is divided by 2 so that its derivative with respect to A is easier to compute.
+
+        Parameters
+        ----------
+        A : numpy.array
+            Output of the neural network.
+        Y : numpy.array
+            Expected output (labels) of the neural network.
+
+        Returns
+        -------
+        J : float
+            Value of the cost function.
+        """
+        m = A.shape[1]
+        J = 1 / (2 * m) * np.sum(np.linalg.norm(A - Y, axis = 0))
+        return J
+
+    #
     def g(self, z, activation):
         # TODO: document function.
         if activation == "sigmoid":
