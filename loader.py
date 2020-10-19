@@ -11,7 +11,7 @@ def load_data():
     """
     Returns the tuple "(train_set, test_set)".
 
-    "train_set" contains 50000 training examples (x, y), and "test_set"
+    "train_set" contains 60000 training examples (x, y), and "test_set"
     contains 10000 training examples (x, y).
     "x" has shape (n^{[0]}, m) and contains n^{[0]} input features for 
     m training examples. "y" has shape (n^{[L]}, m), and contains n^{[L]}

@@ -91,7 +91,7 @@ class NeuralNetwork():
         Y : numpy.array
             Expected output (labels) of the neural network.
         caches : list
-            Caches returned by forwardprop(.).
+            Caches returned by forwardprop().
         
         Returns
         -------
