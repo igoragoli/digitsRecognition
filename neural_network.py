@@ -51,7 +51,7 @@ class NeuralNetwork():
         self.L = len(self.layers_dims)
         costs = []
 
-        for l in range(1, self.L+1):
+        for l in range(1, self.L):
             self.parameters['W' + str(l)] = np.random.randn(self.layers_dims[l], self.layers_dims[l-1]) * np.sqrt(2 / self.layers_dims[l])
             self.parameters['b' + str(l)] = np.zeros((self.layers_dims[l], 1))
         
@@ -214,8 +214,8 @@ class NeuralNetwork():
         elif activation == "relu":
             r = (z >= 0).astype(int)
         return r
+    
 
-        
 
 
 
