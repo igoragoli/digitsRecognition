@@ -24,21 +24,52 @@ class NeuralNetwork():
         # of layers of the network.
     """   
 
-    def __init__(self, layers_dims):
+    def __init__(self, X, Y, layers_dims, learning_rate = 0.005, iterations = 500):
         """
         Constructor method.
-
-        Initializes all attributes. The weights are initialized with small random 
+        Initializes all attributes, sets up a L-layer neural network model, 
+        and trains the model. The weights are initialized with small random 
         values, and the biases are initialized with zeros.
+
+        Parameters
+        ----------
+        X : np.array of shape (n^{[0]}, m)
+            Input matrix.
+        Y : np.array of shape (n^{[L]}, m)
+            Output matrix.
+        layers_dims : list
+            Dimensions of each layer in the network.
+        learning_rate : float
+            Gradient descent learning rate.
+        iterations : int
+            Number of iterations for the learning process.
         """
         
         self.layers_dims = layers_dims
         self.parameters = {}
         self.L = len(self.layers_dims)
+        costs = []
 
+        # Parameters initialization.
         for l in range(1, self.L):
             self.parameters['W' + str(l)] = np.random.randn(self.layers_dims[l], self.layers_dims[l-1]) * np.sqrt(2 / self.layers_dims[l])
             self.parameters['b' + str(l)] = np.zeros((self.layers_dims[l], 1))
+        
+        # Gradient descent.
+        for i in range(iterations):
+            # Perform forward propagation.
+            AL, caches = self.forwardprop(X)
+
+            # Compute cost.
+            J = self.compute_cost(AL, Y)
+
+            # Perform backward propagation.
+            grads = self.backprop(AL, Y, caches)
+
+            # Update parameters.
+            self.update_parameters(grads, learning_rate)
+
+            costs = costs.append(J)
 
     def forwardprop(self, X):
         """
@@ -185,3 +216,8 @@ class NeuralNetwork():
             else:
                 r = 0
         return r
+
+        
+
+
+
