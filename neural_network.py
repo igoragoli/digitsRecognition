@@ -120,7 +120,7 @@ class NeuralNetwork():
 
         return grads
 
-    def cost(self, A, Y):
+    def compute_cost(self, A, Y):
         """
         Computes the cost function.
 
@@ -143,9 +143,26 @@ class NeuralNetwork():
         """
         m = A.shape[1]
         J = 1 / (2 * m) * np.sum(np.linalg.norm(A - Y, axis = 0))
+        J = np.squeeze(J)
         return J
 
-    #
+    def update_parameters(self, grads, learning_rate):
+        """
+        Updates parameters with gradient descent.
+
+        Parameters
+        ----------
+        grads : dict
+            Dictionary containing the "dWl" and "dbl' partial derivatives 
+            of the cost function with respect to Wl and bl.
+
+        learning_rate : float
+            Gradient descent learning rate.
+        """
+        for l in range(1, self.L):
+            self.parameters["W" + str(l)] = self.parameters["W" + str(l)] - learning_rate * grads["dW" + str(l)]
+            self.parameters["b" + str(l)] = self.parameters["b" + str(l)] - learning_rate * grads["db" + str(l)] 
+
     def g(self, z, activation):
         # TODO: document function.
         if activation == "sigmoid":
