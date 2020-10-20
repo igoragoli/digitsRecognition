@@ -103,6 +103,7 @@ class NeuralNetwork():
             b = self.parameters['b' + str(l)]
             Z = np.dot(W, A_prev) + b
             A = self.g(Z, "relu")
+            # TODO: Fix NoneType append problem
             caches = caches.append((A_prev, W, b, Z))
         
         # Output layer (Sigmoid)
@@ -203,10 +204,7 @@ class NeuralNetwork():
         if activation == "sigmoid":
             r = 1 / (1 + np.exp(-z))
         elif activation == "relu":
-            if z >= 0:
-                r = z
-            else:
-                r = 0
+            r = np.maximum(z, 0)
         return r
 
     def dg(self, z, activation):
@@ -215,10 +213,7 @@ class NeuralNetwork():
             sig = self.g(z, "sigmoid")
             r = sig * (1 - sig)
         elif activation == "relu":
-            if z >= 0:
-                r = 1
-            else:
-                r = 0
+            r = (z >= 0)
         return r
 
         
