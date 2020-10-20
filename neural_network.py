@@ -212,7 +212,7 @@ class NeuralNetwork():
             sig = self.g(z, "sigmoid")
             r = sig * (1 - sig)
         elif activation == "relu":
-            r = (z >= 0)
+            r = (z >= 0).astype(int)
         return r
 
         
