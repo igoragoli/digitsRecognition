@@ -96,20 +96,20 @@ class NeuralNetwork():
         A = X
 
         # Hidden layers (ReLU)
-        for l in range(1, self.L):
+        for l in range(1, self.L-1):
             A_prev = A
             W = self.parameters['W' + str(l)]
             b = self.parameters['b' + str(l)]
             Z = np.dot(W, A_prev) + b
             A = self.g(Z, "relu")
             # TODO: Fix NoneType append problem
-            caches = caches.append((A_prev, W, b, Z))
+            caches.append((A_prev, W, b, Z))
         
         # Output layer (Sigmoid)
         A_prev = A
-        WL = self.parameters['W' + str(self.L)]
-        bL = self.parameters['b' + str(self.L)]
-        ZL = np.dot(W, A_prev) + bL
+        WL = self.parameters['W' + str(self.L-1)]
+        bL = self.parameters['b' + str(self.L-1)]
+        ZL = np.dot(WL, A_prev) + bL
         AL = self.g(ZL, "sigmoid")
         caches = caches.append((A_prev, WL, bL, ZL))
 
