@@ -111,7 +111,7 @@ class NeuralNetwork():
         bL = self.parameters['b' + str(self.L-1)]
         ZL = np.dot(WL, A_prev) + bL
         AL = self.g(ZL, "sigmoid")
-        caches = caches.append((A_prev, WL, bL, ZL))
+        caches.append((A_prev, WL, bL, ZL))
 
         return AL, caches
 
@@ -136,14 +136,15 @@ class NeuralNetwork():
         """
         grads = {}
         m = AL.shape[1]
-        dAL = AL - Y
+        grads["dA" + str(self.L - 1)] = AL - Y
 
         # Output Layer
-        A_prev, WL, _, ZL = caches[self.L - 1] 
-        dZL = dAL * self.dg(ZL, "sigmoid")
-        grads["dW" + str(self.L)]  = (1 / m) * np.dot(dZL, A_prev.T)
-        grads["db" + str(self.L)] = (1 / m) * np.sum(dZL, axis=1, keepdims=True)
-        grads["dA" + str(self.L - 1)] = np.dot(WL.T, dZL)
+        l = self.L - 1
+        A_prev, WL, _, ZL = caches[l - 1] 
+        dZL = grads["dA" + str(l)] * self.dg(ZL, "sigmoid")
+        grads["dW" + str(l)]  = (1 / m) * np.dot(dZL, A_prev.T)
+        grads["db" + str(l)] = (1 / m) * np.sum(dZL, axis=1, keepdims=True)
+        grads["dA" + str(l - 1)] = np.dot(WL.T, dZL)
     
         # Hidden Layers
         for l in reversed(range(self.L - 1)):

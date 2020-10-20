@@ -50,3 +50,8 @@ def label_vector(num):
     vector = np.zeros((10, 1))
     vector[num] = 1
     return vector
+
+
+#a, b = load_data()
+#y = a[1]
+#print(type(y.shape[0]))
