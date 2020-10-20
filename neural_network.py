@@ -5,6 +5,7 @@ Implements a simple L-layer neural network.
 """
 
 import numpy as np 
+import matplotlib.pyplot as plt
 
 class NeuralNetwork():
     """
@@ -56,7 +57,7 @@ class NeuralNetwork():
             self.parameters['b' + str(l)] = np.zeros((self.layers_dims[l], 1))
         
         # Gradient descent.
-        for i in range(iterations):
+        for _ in range(iterations):
             # Perform forward propagation.
             AL, caches = self.forwardprop(X)
 
@@ -70,7 +71,10 @@ class NeuralNetwork():
             self.update_parameters(grads, learning_rate)
 
             costs = costs.append(J)
-
+        
+        plt.plot(np.squeeze(costs))
+        plt.show()
+    
     def forwardprop(self, X):
         """
         Implements forward propagation.
@@ -96,7 +100,7 @@ class NeuralNetwork():
         for l in range(1, self.L):
             A_prev = A
             W = self.parameters['W' + str(l)]
-            b = self.parameters['W' + str(l)]
+            b = self.parameters['b' + str(l)]
             Z = np.dot(W, A_prev) + b
             A = self.g(Z, "relu")
             caches = caches.append((A_prev, W, b, Z))
