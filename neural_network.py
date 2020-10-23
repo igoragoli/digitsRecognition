@@ -48,15 +48,16 @@ class NeuralNetwork():
         
         self.layers_dims = layers_dims
         self.parameters = {}
-        self.L = len(self.layers_dims)
+        self.L = len(self.layers_dims) - 1
         costs = []
 
-        for l in range(1, self.L):
+        for l in range(1, self.L + 1):
             self.parameters['W' + str(l)] = np.random.randn(self.layers_dims[l], self.layers_dims[l-1]) * np.sqrt(2 / self.layers_dims[l])
             self.parameters['b' + str(l)] = np.zeros((self.layers_dims[l], 1))
         
         # Gradient descent.
-        for _ in range(iterations):
+        for i in range(iterations):
+            print(i)
             # Perform forward propagation.
             AL, caches = self.forwardprop(X)
 
@@ -69,7 +70,9 @@ class NeuralNetwork():
             # Update parameters.
             self.update_parameters(grads, learning_rate)
 
-            costs = costs.append(J)
+            if (i % 100 == 0):
+                print(J)
+            costs.append(J)
         
         plt.plot(np.squeeze(costs))
         plt.show()
@@ -96,19 +99,18 @@ class NeuralNetwork():
         A = X
 
         # Hidden layers (ReLU)
-        for l in range(1, self.L-1):
+        for l in range(1, self.L):
             A_prev = A
             W = self.parameters['W' + str(l)]
             b = self.parameters['b' + str(l)]
             Z = np.dot(W, A_prev) + b
             A = self.g(Z, "relu")
-            # TODO: Fix NoneType append problem
             caches.append((A_prev, W, b, Z))
         
         # Output layer (Sigmoid)
         A_prev = A
-        WL = self.parameters['W' + str(self.L-1)]
-        bL = self.parameters['b' + str(self.L-1)]
+        WL = self.parameters['W' + str(self.L)]
+        bL = self.parameters['b' + str(self.L)]
         ZL = np.dot(WL, A_prev) + bL
         AL = self.g(ZL, "sigmoid")
         caches.append((A_prev, WL, bL, ZL))
@@ -136,19 +138,18 @@ class NeuralNetwork():
         """
         grads = {}
         m = AL.shape[1]
-        grads["dA" + str(self.L - 1)] = AL - Y
+        grads["dA" + str(self.L)] = AL - Y
 
         # Output Layer
-        l = self.L - 1
-        A_prev, WL, _, ZL = caches[l - 1] 
-        dZL = grads["dA" + str(l)] * self.dg(ZL, "sigmoid")
-        grads["dW" + str(l)]  = (1 / m) * np.dot(dZL, A_prev.T)
-        grads["db" + str(l)] = (1 / m) * np.sum(dZL, axis=1, keepdims=True)
-        grads["dA" + str(l - 1)] = np.dot(WL.T, dZL)
+        AL_prev, WL, _, ZL = caches[self.L - 1] 
+        dZL = grads["dA" + str(self.L)] * self.dg(ZL, "sigmoid")
+        grads["dW" + str(self.L)]  = (1 / m) * np.dot(dZL, AL_prev.T)
+        grads["db" + str(self.L)] = (1 / m) * np.sum(dZL, axis=1, keepdims=True)
+        grads["dA" + str(self.L - 1)] = np.dot(WL.T, dZL)
     
         # Hidden Layers
-        for l in reversed(range(self.L - 1)):
-            A_prev, W, _, Z = caches[l]
+        for l in reversed(range(1, self.L)):
+            A_prev, W, _, Z = caches[l - 1]
             dZ = grads["dA" + str(l)] * self.dg(Z, "relu")
             grads["dW" + str(l)]  = (1 / m) * np.dot(dZ, A_prev.T)
             grads["db" + str(l)]  = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
@@ -157,7 +158,7 @@ class NeuralNetwork():
         return grads
 
     def compute_cost(self, A, Y):
-        """
+        """ 
         Computes the cost function.
 
         The cost function used in this neural network model is the
@@ -195,12 +196,28 @@ class NeuralNetwork():
         learning_rate : float
             Gradient descent learning rate.
         """
-        for l in range(1, self.L):
+        for l in range(1, self.L + 1):
             self.parameters["W" + str(l)] = self.parameters["W" + str(l)] - learning_rate * grads["dW" + str(l)]
             self.parameters["b" + str(l)] = self.parameters["b" + str(l)] - learning_rate * grads["db" + str(l)] 
 
     def g(self, z, activation):
-        # TODO: document function.
+        """
+        Activation functions.
+
+        Parameters
+        ----------
+        z : numpy.array
+            The result of the linear calculations of each layer: Z = WA + b.
+        
+        activation: string
+            "relu" for the ReLU activation function, in the hidden layers, and
+            "sigmoid" for the sigmoid activation function, in the output layer.
+        
+        Returns
+        -------
+        r : numpy.array
+            r = g(z).
+        """
         if activation == "sigmoid":
             r = 1 / (1 + np.exp(-z))
         elif activation == "relu":
@@ -208,7 +225,23 @@ class NeuralNetwork():
         return r
 
     def dg(self, z, activation):
-        # TODO: document function.
+        """
+        Activation function derivatives in relation to z.
+
+        Parameters
+        ----------
+        z : numpy.array
+            The result of the linear calculations of each layer: Z = WA + b.
+        
+        activation: string
+            "relu" for the ReLU activation function, in the hidden layers, and
+            "sigmoid" for the sigmoid activation function, in the output layer.
+        
+        Returns
+        -------
+        r : numpy.array
+            r = dg(z)/dz.
+        """
         if activation == "sigmoid":
             sig = self.g(z, "sigmoid")
             r = sig * (1 - sig)

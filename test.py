@@ -7,4 +7,4 @@ Y = train_set[1]
 n0 = X.shape[0]
 nL = Y.shape[0]
 
-model = NeuralNetwork(X=X, Y=Y, layers_dims=[n0, 3, 3, nL], learning_rate=0.05, iterations=300)
+model = NeuralNetwork(X=X, Y=Y, layers_dims=[n0, 2, 2, nL], learning_rate=0.01, iterations=1000)
